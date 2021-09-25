@@ -50,29 +50,28 @@ for folder in [output_folder]:
 # Get HTML using user agent
 table = []
 req = requests.get(html_path).text
-#html = urlopen(req).read()
+# html = urlopen(req).read()
 
 # table into a dataframe
-soup  = BeautifulSoup(req, "html.parser")
-
+soup = BeautifulSoup(req, "html.parser")
 
 # Parse dataframe
 for div in soup:
     td = soup.find_all('a')
     row = [div.text for div in td][6:-8]
     df = pd.DataFrame(row, columns=['Ticker'])
-    df = df.Ticker.str.split("$",expand=True)
+    df = df.Ticker.str.split("$", expand=True)
     df2 = df.set_axis(['Name', '1 Day Fees', '7 Day Fees'], axis=1)
-    df3 = df2.replace(',','', regex=True)
+    df3 = df2.replace(',', '', regex=True)
     df3['Name'].astype('str')
-    #df3 = df2[['1 Day Fees', '7 Day Fees']].replacSwish and normal mode save(',','', regex=True)
+    # df3 = df2[['1 Day Fees', '7 Day Fees']].replacSwish and normal mode save(',','', regex=True)
     df3[['1 Day Fees', '7 Day Fees']].astype('float')
-    
-    df3['Date_Stamp'] = today
-    #df = pd.read_csv(row, sep=",", index_col=0, header=None)
 
-#file locally 
-df3.to_csv(base_path +'\\' + output_folder +'\\' + output_file, index = False, header=True)   
+    df3['Date_Stamp'] = today
+    # df = pd.read_csv(row, sep=",", index_col=0, header=None)
+
+# file locally
+df3.to_csv(base_path + '\\' + output_folder + '\\' + output_file, index=False, header=True)
 
 # move file to archives
 
@@ -85,13 +84,14 @@ print(parser.get("AWS", "aws_access_key_id"))
 
 s3 = boto3.resource(
     service_name='s3',
-    region_name= parser.get("AWS", "region"),
-    aws_access_key_id= parser.get("AWS", "aws_access_key_id"),
-    aws_secret_access_key= parser.get("AWS", "aws_secret_access_key")
+    region_name=parser.get("AWS", "region"),
+    aws_access_key_id=parser.get("AWS", "aws_access_key_id"),
+    aws_secret_access_key=parser.get("AWS", "aws_secret_access_key")
 )
 # Print out bucket names
 for bucket in s3.buckets.all():
     print(bucket.name)
 
-s3.Bucket('1datadirectory').upload_file(Filename= base_path +'\\' + output_folder +'\\' + output_file, Key= 'crypto_fees_website/Raw/'+ output_file)
+s3.Bucket('1datadirectory').upload_file(Filename=base_path + '\\' + output_folder + '\\' + output_file,
+                                        Key='crypto_fees_website/Raw/' + output_file)
 sys.exit()
